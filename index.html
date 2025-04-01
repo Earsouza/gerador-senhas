@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerador de Senhas Aleatórias</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .password-display {
+            background-color: #eaeaea;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 20px;
+            min-height: 25px;
+            word-break: break-all;
+        }
+        .options {
+            margin-bottom: 20px;
+        }
+        .options label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .slider-container input {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        .slider-value {
+            width: 30px;
+            text-align: center;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .copy-button {
+            background-color: #27ae60;
+            margin-top: 10px;
+        }
+        .copy-button:hover {
+            background-color: #219653;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gerador de Senhas Aleatórias</h1>
+        
+        <div class="password-display" id="passwordDisplay">Sua senha aparecerá aqui</div>
+        
+        <div class="button-group">
+            <button id="copyButton" class="copy-button">Copiar Senha</button>
+        </div>
+        
+        <div class="options">
+            <div class="slider-container">
+                <label for="passwordLength">Comprimento:</label>
+                <input type="range" id="passwordLength" min="4" max="64" value="16">
+                <span id="lengthValue" class="slider-value">16</span>
+            </div>
+            
+            <label>
+                <input type="checkbox" id="uppercaseOption" checked>
+                Incluir letras maiúsculas (A-Z)
+            </label>
+            
+            <label>
+                <input type="checkbox" id="lowercaseOption" checked>
+                Incluir letras minúsculas (a-z)
+            </label>
+            
+            <label>
+                <input type="checkbox" id="numbersOption" checked>
+                Incluir números (0-9)
+            </label>
+            
+            <label>
+                <input type="checkbox" id="symbolsOption">
+                Incluir símbolos especiais (!@#$%&*)
+            </label>
+            
+            <label>
+                <input type="checkbox" id="excludeSimilarOption">
+                Excluir caracteres semelhantes (o, O, 0, l, I, 1)
+            </label>
+        </div>
+        
+        <button id="generateButton">Gerar Senha</button>
+    </div>
+    
+    <script>
+        // Elementos DOM
+        const passwordDisplay = document.getElementById('passwordDisplay');
+        const generateButton = document.getElementById('generateButton');
+        const copyButton = document.getElementById('copyButton');
+        const passwordLength = document.getElementById('passwordLength');
+        const lengthValue = document.getElementById('lengthValue');
+        const uppercaseOption = document.getElementById('uppercaseOption');
+        const lowercaseOption = document.getElementById('lowercaseOption');
+        const numbersOption = document.getElementById('numbersOption');
+        const symbolsOption = document.getElementById('symbolsOption');
+        const excludeSimilarOption = document.getElementById('excludeSimilarOption');
+        
+        // Atualizar o valor exibido do slider
+        passwordLength.addEventListener('input', () => {
+            lengthValue.textContent = passwordLength.value;
+        });
+        
+        // Função para gerar senha
+        function generatePassword() {
+            // Conjuntos de caracteres
+            const upperChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const lowerChars = 'abcdefghijklmnopqrstuvwxyz';
+            const numberChars = '0123456789';
+            const symbolChars = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+            const similarChars = 'oO0lI1';
+            
+            // Verificar se pelo menos uma opção está selecionada
+            if (!uppercaseOption.checked && !lowercaseOption.checked && 
+                !numbersOption.checked && !symbolsOption.checked) {
+                passwordDisplay.textContent = 'Selecione pelo menos um tipo de caractere';
+                return;
+            }
+            
+            // Construir conjunto de caracteres
+            let chars = '';
+            
+            if (uppercaseOption.checked) chars += upperChars;
+            if (lowercaseOption.checked) chars += lowerChars;
+            if (numbersOption.checked) chars += numberChars;
+            if (symbolsOption.checked) chars += symbolChars;
+            
+            // Remover caracteres semelhantes se a opção estiver marcada
+            if (excludeSimilarOption.checked) {
+                for (let i = 0; i < similarChars.length; i++) {
+                    chars = chars.replace(new RegExp(similarChars[i], 'g'), '');
+                }
+            }
+            
+            // Gerar senha
+            let password = '';
+            const length = parseInt(passwordLength.value);
+            
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * chars.length);
+                password += chars[randomIndex];
+            }
+            
+            // Exibir senha
+            passwordDisplay.textContent = password;
+        }
+        
+        // Função para copiar senha
+        function copyPassword() {
+            const password = passwordDisplay.textContent;
+            if (password === 'Sua senha aparecerá aqui' || 
+                password === 'Selecione pelo menos um tipo de caractere') {
+                return;
+            }
+            
+            navigator.clipboard.writeText(password).then(() => {
+                const originalText = copyButton.textContent;
+                copyButton.textContent = 'Copiado!';
+                setTimeout(() => {
+                    copyButton.textContent = originalText;
+                }, 2000);
+            });
+        }
+        
+        // Event listeners
+        generateButton.addEventListener('click', generatePassword);
+        copyButton.addEventListener('click', copyPassword);
+        
+        // Gerar senha inicial
+        generatePassword();
+    </script>
+</body>
+</html>
